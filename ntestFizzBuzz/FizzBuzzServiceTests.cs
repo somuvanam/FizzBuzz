@@ -92,26 +92,35 @@ namespace FizzBuzz.Tests
         {
             // Arrange
             var mockFactory = new Mock<IFizzBuzzRuleFactory>();
-            var mockFizzRule = new Mock<IFizzBuzzRule>();
+            var mockFizzBuzzRule = new Mock<IFizzBuzzRule>();
             var mockBuzzRule = new Mock<IFizzBuzzRule>();
-            mockFactory.Setup(f => f.CreateRule(3)).Returns(mockFizzRule.Object);
-            mockFactory.Setup(f => f.CreateRule(5)).Returns(mockBuzzRule.Object);
-            mockFizzRule.Setup(r => r.GetResult()).Returns("Fizz");
+            var mockDefaultRule = new Mock<IFizzBuzzRule>();
+
+            // Setting up rules for specific numbers
+            mockFactory.Setup(f => f.CreateRule(15)).Returns(mockFizzBuzzRule.Object);
+            mockFactory.Setup(f => f.CreateRule(20)).Returns(mockBuzzRule.Object);
+
+            // Default rule setup for numbers not specifically mocked
+            mockFactory.Setup(f => f.CreateRule(It.IsAny<int>())).Returns(mockDefaultRule.Object);
+
+            // Setting up the expected results
+            mockFizzBuzzRule.Setup(r => r.GetResult()).Returns("FizzBuzz");
             mockBuzzRule.Setup(r => r.GetResult()).Returns("Buzz");
+            mockDefaultRule.Setup(r => r.GetResult()).Returns("Invalid item");
 
             var service = new FizzBuzzService(mockFactory.Object);
-            var input = new List<string> { "15", "abc", "20" }; // "15" is FizzBuzz, "abc" is invalid, "20" is Buzz
+            var input = new List<string> { "15", "abc", "20" };
 
             // Act
             var result = await service.GetFizzBuzzResults(input);
 
             // Assert
-            
             Assert.AreEqual(3, result.Results.Count);
             Assert.AreEqual("FizzBuzz", result.Results[0]);
             Assert.AreEqual("Invalid item", result.Results[1]);
             Assert.AreEqual("Buzz", result.Results[2]);
         }
+
 
         [Test]
         public async Task GetFizzBuzzResults_EmptyInput_ReturnsEmptyResults()
