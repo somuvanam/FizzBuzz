@@ -5,7 +5,7 @@ namespace FizzBuzz.Services
 {
     public class FizzBuzzResult
     {
-        public IEnumerable<string> InputData { get; set; }
+        public List<string> InputData { get; set; }
         public List<string> Results { get; set; }
     }
     public class FizzBuzzService : IFizzBuzzService
