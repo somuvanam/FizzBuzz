@@ -92,33 +92,46 @@ namespace FizzBuzz.Tests
         {
             // Arrange
             var mockFactory = new Mock<IFizzBuzzRuleFactory>();
-            var mockFizzBuzzRule = new Mock<IFizzBuzzRule>();
+
+            // Mocking rules for specific numbers
+            var mockFizzRule = new Mock<IFizzBuzzRule>();
             var mockBuzzRule = new Mock<IFizzBuzzRule>();
-            var mockDefaultRule = new Mock<IFizzBuzzRule>();
+            var mockFizzBuzzRule = new Mock<IFizzBuzzRule>();
+            var mockNumberTwoRule = new Mock<IFizzBuzzRule>();
+            var mockNumberTwentyFiveRule = new Mock<IFizzBuzzRule>();
+            var mockNumberTwentyOneRule = new Mock<IFizzBuzzRule>();
 
-            // Setting up rules for specific numbers
+            mockFactory.Setup(f => f.CreateRule(3)).Returns(mockFizzRule.Object);
+            mockFactory.Setup(f => f.CreateRule(5)).Returns(mockBuzzRule.Object);
             mockFactory.Setup(f => f.CreateRule(15)).Returns(mockFizzBuzzRule.Object);
-            mockFactory.Setup(f => f.CreateRule(20)).Returns(mockBuzzRule.Object);
+            mockFactory.Setup(f => f.CreateRule(2)).Returns(mockNumberTwoRule.Object);
+            mockFactory.Setup(f => f.CreateRule(25)).Returns(mockNumberTwentyFiveRule.Object);
+            mockFactory.Setup(f => f.CreateRule(21)).Returns(mockNumberTwentyOneRule.Object);
 
-            // Default rule setup for numbers not specifically mocked
-            mockFactory.Setup(f => f.CreateRule(It.IsAny<int>())).Returns(mockDefaultRule.Object);
-
-            // Setting up the expected results
-            mockFizzBuzzRule.Setup(r => r.GetResult()).Returns("FizzBuzz");
+            // Setting up expected results
+            mockFizzRule.Setup(r => r.GetResult()).Returns("Fizz");
             mockBuzzRule.Setup(r => r.GetResult()).Returns("Buzz");
-            mockDefaultRule.Setup(r => r.GetResult()).Returns("Invalid item");
+            mockFizzBuzzRule.Setup(r => r.GetResult()).Returns("FizzBuzz");
+            mockNumberTwoRule.Setup(r => r.GetResult()).Returns("Divided 2 by 3\nDivided 2 by 5");
+            mockNumberTwentyFiveRule.Setup(r => r.GetResult()).Returns("Buzz");
+            mockNumberTwentyOneRule.Setup(r => r.GetResult()).Returns("Fizz");
 
             var service = new FizzBuzzService(mockFactory.Object);
-            var input = new List<string> { "15", "abc", "20" };
+            var input = new List<string> { "1", "3", "15", "", "abc", "2", "25", "21" };
 
             // Act
             var result = await service.GetFizzBuzzResults(input);
 
             // Assert
-            Assert.AreEqual(3, result.Results.Count);
-            Assert.AreEqual("FizzBuzz", result.Results[0]);
-            Assert.AreEqual("Invalid item", result.Results[1]);
-            Assert.AreEqual("Buzz", result.Results[2]);
+            Assert.AreEqual(8, result.Results.Count);
+            Assert.AreEqual("Divided 1 by 3\nDivided 1 by 5", result.Results[0]);
+            Assert.AreEqual("Fizz", result.Results[1]);
+            Assert.AreEqual("FizzBuzz", result.Results[2]);
+            Assert.AreEqual("Invalid item", result.Results[3]); // Empty string
+            Assert.AreEqual("Invalid item", result.Results[4]); // Non-numeric string
+            Assert.AreEqual("Divided 2 by 3\nDivided 2 by 5", result.Results[5]);
+            Assert.AreEqual("Buzz", result.Results[6]);
+            Assert.AreEqual("Fizz", result.Results[7]);
         }
 
 
